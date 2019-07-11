@@ -14,11 +14,10 @@ class User extends Authenticatable
     //Relaciones
     //==================================================
     
-    public function pedidos(){ //un usuario muchos pedidos con las imagenes y materoales de este
-        $pedidos = $this->hasMany(Pedido::class)->with('imagenes')->with('materiales');
+    public function pedidos(){ //un usuario muchos pedidos con las imagenes de este
+        $pedidos = $this->hasMany(Pedido::class)->with('imagenes');
         return $pedidos;
-    }
-    
+    }    
     
     //==================================================
     //configuracion de lo que se muestra lo que no 

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateUserRequest extends FormRequest
+class CreatePedidoRequest extends FormRequest
 {
     
     protected $redirectAction="HelperController@error";
@@ -28,10 +28,13 @@ class CreateUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'usuario'=>'required|string',
-            'email' => 'email|required',
-            'img' => 'nullable|image',
-            'password'=>'required'
+            'tipo'=>'required|string',
+            'user_id'=>'required|numeric',
+            'encargado_id' => 'nullable|numeric',
+            'nombre' => 'required|string',
+            'descripcion'=>'nullable|string',
+            'progreso'=>'nullable|numeric',
+            'precio'=>'nullable|numeric'
         ];
     }
 }

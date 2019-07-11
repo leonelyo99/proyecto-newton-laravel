@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-//para acceso al disco
-use Illuminate\Support\Facades\Storage;
 //para crear un objeto json
 use Illuminate\Support\Collection as Collection;
 //para la respuesta
@@ -23,13 +21,5 @@ class HelperController extends Controller
             
         $requestObj = new Request(array('ok' =>false,"error"=>$mensajeJson));
         return response($requestObj, 404);
-    }
-    
-    //=======================================
-    //muestra la imagen
-    //=======================================
-    public function verImgen($name) {
-        $file = Storage::disk('images')->get($name);
-        return $file;
     }
 }

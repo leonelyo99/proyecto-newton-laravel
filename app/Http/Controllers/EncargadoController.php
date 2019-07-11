@@ -6,24 +6,29 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 //validacion del request para crear encargado
 use App\Http\Requests\CreateEncargadoRequest;
+//validacion del request para actualizar encargado
+use App\Http\Requests\UpdateEncargadoRequest;
+//subir imagenes
+use Illuminate\Support\Facades\Storage; //guardar en el disco
+use Illuminate\Support\Facades\File; //traer el archivo
 //para crear un objeto json
 use Illuminate\Support\Collection as Collection;
 //para try y catch
 Use Exception;
-//modelo de usuario
+//modelo de encargado
 use App\Encargado;
 
 class EncargadoController extends Controller {
 
     //=======================================
-    //Crea un usuario mediante el post
+    //Crea un encargado mediante el post
     //=======================================
     public function crearEncargado(CreateEncargadoRequest $request) {
-        //instancio el usuario
+        //instancio el encargado
         $encargado = new Encargado;
 
         //si la peticion tiene una imagen tomo el archivo lo guardo con otro nombre
-        //en el disco imagen y paso el nombre de esta al usuario si no dejo la imagen null
+        //en el disco imagen y paso el nombre de este al encargado si no dejo la imagen null
         if ($request->hasFile('img')) {
             $image_path = $request->file('img');
 
@@ -33,7 +38,7 @@ class EncargadoController extends Controller {
         } else {
             $encargado->img = NULL;
         }
-        //declaro estas variables en el modelo del usuario
+        //declaro estas variables en el modelo del encargado
         $encargado->empresa_id = $request->input('empresa_id');
         $encargado->nombre = strtoupper(trim(strip_tags($request->input('nombre')))); //limpio los espacios, limpio xss, lo paso a mayusculas
         $encargado->apellido = strtoupper(trim(strip_tags($request->input('apellido'))));
@@ -43,9 +48,9 @@ class EncargadoController extends Controller {
         $encargado->estado = "true";
 
         //compruebo si esta duplicado y mando el response
-        $comprovacionUsuario = Encargado::where('usuario', $encargado->usuario)->first();
+        $comprovacionEncargado = Encargado::where('usuario', $encargado->usuario)->first();
 
-        if (!empty($comprovacionUsuario)) {
+        if (!empty($comprovacionEncargado)) {
             $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
@@ -71,32 +76,141 @@ class EncargadoController extends Controller {
     }
 
     //=======================================
-    //Mando encargado con pedido,imagen,materiales y usuario perteneciente
+    //Mando encargado con pedido,imagen y usuario perteneciente
     //=======================================
     public function encargado($id) {
-        
+
         //busca el encargado si no lo encuentra avisa 
         try {
             $encargadoDB = Encargado::where('id', $id)->where('estado', 'true')->with('empresa')->with('pedidos')->first();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
-        }
-        //si da una respuesta vacia es un error del servidor sino todo ok
-        if (!$encargadoDB) {
             $mensaje = ['mensaje' => 'Error del servidor disculpe'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
 
             $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
             return response($requestObj, 500);
+        }
+        //si da una respuesta vacia no lo encontro
+        if (!$encargadoDB) {
+            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 404);
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => $encargadoDB));
             return response($requestObj, 200);
+        }
+    }
+
+    //=======================================
+    //borrar un encargado mediante el id
+    //=======================================
+    public function borrar($id) {
+        try {
+            $encargadoDB = Encargado::where('id', $id)->where('estado', 'true')->first();
+        } catch (Exception $e) {
+            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 500);
+        }
+        if (!$encargadoDB) {
+            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 404);
+        } else {
+            $encargadoDB->estado = "false";
+            $encargadoDB->save();
+
+            $requestObj = new Request(array('ok' => true, "respuesta" => "borrado"));
+            return response($requestObj, 201);
+        }
+    }
+
+    //=======================================
+    //modificar un usuario mediante el post
+    //=======================================
+    public function editar(UpdateEncargadoRequest $request) {
+
+        try {
+            $encargadoDB = Encargado::findOrFail($request->input('id'));
+        } catch (Exception $e) {
+            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 500);
+        }
+
+        if (!$encargadoDB) { //si el encargado esta vacio mando el response sino
+            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 404);
+        } else {
+            
+            //si la request tiene un input usuario reviso que no este duplicado
+            if ($request->input('usuario')) {
+                
+                $encargadoDB->usuario = strtoupper(trim(strip_tags($request->input('usuario')))); //limpio los espacios, limpio xss, lo paso a mayusculas
+
+                //compruebo si esta duplicado y mando el response
+                $comprovacionEncargado = Encargado::where('usuario', $encargadoDB->usuario)->first();
+
+                if (!empty($comprovacionEncargado)) {
+                    $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
+                    $mensajeJson = Collection::make($mensaje);
+                    $mensajeJson->toJson();
+
+                    $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+                    return response($requestObj, 409);
+                }
+            }
+            
+            //declaro las otras variables
+            $encargadoDB->nombre = strtoupper(trim(strip_tags($request->input('nombre')))); //limpio los espacios, limpio xss, lo paso a mayusculas
+            $encargadoDB->apellido = strtoupper(trim(strip_tags($request->input('apellido'))));
+            $encargadoDB->password = trim($request->input('password'));
+
+            //si tiene imagen la guardo sino sigo
+            
+            if ($request->hasFile('img')) {
+
+                if ($encargadoDB->img) {
+                    $file = Storage::disk('images')->delete($encargadoDB->img);
+                };
+
+                $image_path = $request->file('img');
+
+                $imagen_guardar = time() . $image_path->getClientOriginalName();
+                Storage::disk('images')->put($imagen_guardar, File::get($image_path));
+                $encargadoDB->img = $imagen_guardar;
+            }
+            //lo guardo
+            try {
+                $encargadoDB->save();
+            } catch (Exception $e) {
+                $mensaje = ['mensaje' => 'Error al guardar intentelo mas tarde'];
+                $mensajeJson = Collection::make($mensaje);
+                $mensajeJson->toJson();
+
+                $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+                return response($requestObj, 500);
+            }
+
+            $requestObj = new Request(array('ok' => true, "respuesta" => $encargadoDB));
+            return response($requestObj, 201);
         }
     }
 

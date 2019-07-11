@@ -12,11 +12,11 @@ class Encargado extends Model
     //==================================================
     
     public function empresa(){ //caracteristicas de la empresa asociada a este encargado
-        return $this->belongsTo(Empresa::class); //esto encargado pertenece a una empresa
+        return $this->belongsTo(Empresa::class); //este encargado pertenece a una empresa
     }
     
-    public function pedidos(){ //un encargado muchos pedidos con las imagenes y materoales de este
-        $pedidos = $this->hasMany(Pedido::class)->with('imagenes')->with('materiales')->with('usuario');
+    public function pedidos(){ //un encargado muchos pedidos con las imagenes de este
+        $pedidos = $this->hasMany(Pedido::class)->with('imagenes')->with('usuario');
         return $pedidos;
     }
     

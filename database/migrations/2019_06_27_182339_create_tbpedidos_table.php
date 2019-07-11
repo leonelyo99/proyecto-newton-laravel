@@ -15,7 +15,7 @@ class CreateTbpedidosTable extends Migration
     {
         Schema::create('tbpedidos', function (Blueprint $table) {
             $table->bigIncrements('id')->unique()->autoIncrement();
-            $table->integer('user_id')->unsigned()->nullable();
+            $table->integer('user_id')->unsigned();
             $table->integer('encargado_id')->unsigned()->nullable();
             $table->integer('empresa_id')->unsigned()->nullable();
             $table->string('nombre');

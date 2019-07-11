@@ -12,7 +12,7 @@ use Illuminate\Support\Collection as Collection;
 Use Exception;
 //subir imagenes
 use Illuminate\Support\Facades\Storage; //guardar en el disco
-use Illuminate\Support\Facades\File; //traer el archivo
+use Illuminate\Support\Facades\File; //tratar con archivos
 //para la respuesta
 use Illuminate\Http\Response;
 //modelo de usuario
@@ -25,25 +25,36 @@ class UsersController extends Controller {
     //=======================================
     public function usuarios() {
         try {
-
             $usuariosDB = User::where('estado', 'true')->with('pedidos')->get();
-        } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'No se encontron usuarios'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
 
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
-        }
-
-        if (!$usuariosDB) {
+            //si el pedido lo tomo una empresa se devuelve la empresa y si lo hizo un encargado
+            //se devuelve un encargado
+            foreach ($usuariosDB as $usuario => $usuarioDB) {
+                foreach ($usuarioDB->pedidos as $pedido => $pedidoDB) {
+                    if ($pedidoDB->empresa_id) {
+                        $usuariosDB[$usuario]->pedidos[$pedido]->empresa;
+                    } else if ($pedidoDB->encargado_id) {
+                        $usuariosDB[$usuario]->pedidos[$pedido]->encargado;
+                    }
+                }
+            }
+        } catch (Exception $e) { //si viene no  funciona larga error
             $mensaje = ['mensaje' => 'Error del servidor disculpe'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
 
             $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
             return response($requestObj, 500);
-        } else {
+        }
+
+        if (!$usuariosDB) { //si esta vacio, no lo encontro
+            $mensaje = ['mensaje' => 'No se encontron usuarios'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 404);
+        } else { //si no esta vacio lo mando al front
             $requestObj = new Request(array('ok' => true, "respuesta" => $usuariosDB));
             return response($requestObj, 200);
         }
@@ -56,22 +67,31 @@ class UsersController extends Controller {
         //busca el usuario si no lo encuentra avisa 
         try {
             $usuarioDB = User::where('id', $id)->where('estado', 'true')->with('pedidos')->first();
+            //dentro de cada pedido veo si es de encargado o de empresa
+            foreach ($usuarioDB->pedidos as $pedido => $pedidoDB) {
+                if ($pedidoDB->empresa_id) {
+                    $usuarioDB->pedidos[$pedido]->empresa;
+                } else if ($pedidoDB->encargado_id) {
+                    $usuarioDB->pedidos[$pedido]->encargado;
+                }
+            }
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
-        }
-        //si da una respuesta vacia es un error del servidor sino todo ok
-        if (!$usuarioDB) {
             $mensaje = ['mensaje' => 'Error del servidor disculpe'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
 
             $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
             return response($requestObj, 500);
+        }
+        
+        //si da una respuesta vacia es un error del servidor sino todo ok
+        if (!$usuarioDB) {
+            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 404);
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => $usuarioDB));
             return response($requestObj, 200);
@@ -84,16 +104,17 @@ class UsersController extends Controller {
     public function crearUsuario(CreateUserRequest $request) {
         //instancio el usuario
         $usuario = new User;
+        
         //si la peticion tiene una imagen tomo el archivo lo guardo con otro nombre
         //en el disco imagen y paso el nombre de esta al usuario si no dejo la imagen null
         if ($request->hasFile('img')) {
-            $image_path = $request->file('img');
+            $image_path = $request->file('img'); //tomo la imagen
 
-            $imagen_guardar = time() . $image_path->getClientOriginalName();
-            Storage::disk('images')->put($imagen_guardar, File::get($image_path));
-            $usuario->img = $imagen_guardar;
+            $imagen_guardar = time() . $image_path->getClientOriginalName(); //le cambio el nombre
+            Storage::disk('images')->put($imagen_guardar, File::get($image_path)); //lo guardo en el disco imagenes
+            $usuario->img = $imagen_guardar; //y el nombre en el campo img del usuario
         } else {
-            $usuario->img = NULL;
+            $usuario->img = NULL; //si no viene el campo mando null
         }
         //declaro estas variables en el modelo del usuario
         $usuario->usuario = strtoupper(trim(strip_tags($request->input('usuario')))); //limpio los espacios, limpio xss, lo paso a mayusculas
@@ -102,7 +123,7 @@ class UsersController extends Controller {
         $usuario->role = "usuario";
         $usuario->estado = "true";
 
-        //compruebo si esta duplicado y mando el response
+        //compruebo si esta duplicado, si lo esta mando el response
         $comprovacionUsuario = User::where('usuario', $usuario->usuario)->first();
         $comprovacionEmail = User::where('email', $usuario->email)->first();
 
@@ -122,6 +143,7 @@ class UsersController extends Controller {
             $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
             return response($requestObj, 409);
         }
+        
         //si no esta duplicado lo guardo, si pasa algo lo aviso
         try {
             $usuario->save();
@@ -143,43 +165,69 @@ class UsersController extends Controller {
     //=======================================
     public function editar(CreateUserRequest $request) {
 
-        try {
+        try {//traigo el usuario
             $usuarioDB = User::findOrFail($request->input('id'));
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
-        }
-
-        if (!$usuarioDB) {
             $mensaje = ['mensaje' => 'Error del servidor disculpe'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
 
             $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
             return response($requestObj, 500);
+        }
+
+        if (!$usuarioDB) { //si no esta encontrado
+            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 404);
         } else {
+            //si el request trae un usuario reviso que no este duplicado en la base de datos
+            if ($request->input('usuario')) {
+                $usuarioDB->usuario = strtoupper(trim(strip_tags($request->input('usuario')))); //limpio los espacios, limpio xss, lo paso a mayusculas
 
-            $usuarioDB->usuario = strtoupper(trim(strip_tags($request->input('usuario')))); //limpio los espacios, limpio xss, lo paso a mayusculas
-            $usuarioDB->email = trim(strip_tags($request->input('email'))); //limio de xss, limpio los espacios
+                $comprovacionUsuario = Encargado::where('usuario', $usuarioDB->usuario)->first();
+                if (!empty($comprovacionUsuario)) {
+                    $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
+                    $mensajeJson = Collection::make($mensaje);
+                    $mensajeJson->toJson();
+
+                    $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+                    return response($requestObj, 409);
+                }
+            }
+            //si el request trae un email reviso que no este duplicado en la base de datos
+            if ($request->input('email')) {
+                $usuarioDB->email = trim(strip_tags($request->input('email'))); //limio de xss, limpio los espacios
+
+                $comprovacionEmail = Encargado::where('email', $usuarioDB->email)->first();
+                if (!empty($comprovacionEmail)) {
+                    $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
+                    $mensajeJson = Collection::make($mensaje);
+                    $mensajeJson->toJson();
+
+                    $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+                    return response($requestObj, 409);
+                }
+            }
+            //guardo la password
             $usuarioDB->password = trim($request->input('password'));
-
+            //si tiene un archivo
             if ($request->hasFile('img')) {
-
+                //me fijo si viene en la base de datos si esta lo borro
                 if ($usuarioDB->img) {
                     $file = Storage::disk('images')->delete($usuarioDB->img);
                 };
-
+                //guardo la imagen
                 $image_path = $request->file('img');
 
                 $imagen_guardar = time() . $image_path->getClientOriginalName();
                 Storage::disk('images')->put($imagen_guardar, File::get($image_path));
                 $usuarioDB->img = $imagen_guardar;
             }
-
+            //guardo el usuario
             try {
                 $usuarioDB->save();
             } catch (Exception $e) {
@@ -203,27 +251,28 @@ class UsersController extends Controller {
         try {
             $usuarioDB = User::where('id', $id)->where('estado', 'true')->first();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
-        }
-        if (!$usuarioDB) {
             $mensaje = ['mensaje' => 'Error del servidor disculpe'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
 
             $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
             return response($requestObj, 500);
+        }
+        if (!$usuarioDB) {
+            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 404);
         } else {
+            //cambio el estado a false
             $usuarioDB->estado = "false";
-            $usuarioDB->save();
-            
+            $usuarioDB->save(); //y lo guardo
+
             $requestObj = new Request(array('ok' => true, "respuesta" => "borrado"));
             return response($requestObj, 201);
         }
     }
+
 }
-    

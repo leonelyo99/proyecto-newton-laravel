@@ -4,19 +4,16 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateUserRequest extends FormRequest
-{
-    
-    protected $redirectAction="HelperController@error";
+class UpdateEncargadoRequest extends FormRequest {
 
+    protected $redirectAction = "HelperController@error";
 
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize() {
         return true;
     }
 
@@ -25,13 +22,14 @@ class CreateUserRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules() {
         return [
-            'usuario'=>'required|string',
-            'email' => 'email|required',
+            'nombre' => 'required|string',
+            'apellido' => 'required|string',
+            'usuario' => 'required|string',
             'img' => 'nullable|image',
-            'password'=>'required'
+            'password' => 'required'
         ];
     }
+
 }

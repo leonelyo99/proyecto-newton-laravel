@@ -9,15 +9,19 @@ class Pedido extends Model
     //==================================================
     //Relaciones
     //==================================================
+    public function empresa(){ //si el pedido lo hizo una empresa llamo a este
+        return $this->belongsTo(Empresa::class);
+    }
+    
+    public function encargado(){ //si el pedido lo hizo un encargado llamo a este
+        return $this->belongsTo(Encargado::class);
+    }
+    
     public function imagenes(){ //un pedido muchas imagenes
         return $this->hasMany(Imagen::class);
     }
     
-    public function materiales(){ //un pedido muchos materiales
-        return $this->hasMany(Material::class);
-    }
-    
-    public function usuario(){ //un pedido un usuario
+    public function usuario(){ //desde el pedido quiero llamar a un usuario
         return $this->belongsTo(User::class,'user_id'); //pertenece a un usuario
     }
     

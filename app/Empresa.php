@@ -6,6 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class Empresa extends Model
 {
+    //==================================================
+    //Relaciones
+    //==================================================
+    
+    public function encargados(){ //encargados de la empresa
+        return $this->hasMany(Encargado::class)->with('pedidos'); //este encargado pertenece a la
+    }
+    public function encargadoSinPedido(){ //encargados de la empresa
+        return $this->hasMany(Encargado::class); //este encargado pertenece a la
+    }
+    public function pedidos(){ //pedidos de la empresa
+        return $this->hasMany(Pedido::class)->with('usuario'); //este encargado pertenece a la
+    }
+    
+    
+    //==================================================
+    //configuracion de lo que se muestra lo que no 
+    //y lo que se agrega y lo que no
+    //==================================================
+    
     //tabla a la que se refiere este modelo
     protected $table = 'tbempresas';
     

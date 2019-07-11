@@ -17,7 +17,7 @@ class CreateTbempresasTable extends Migration
             $table->bigIncrements('id')->unique()->autoIncrement();
             $table->string('nombre',40);
             $table->string('apellido',40);
-            $table->integer('documento')->unsigned()->unique();
+            $table->bigInteger('documento')->unsigned()->unique();
             $table->string('nombreEmpresa');
             $table->string('password',50);
             $table->string('img')->nullable();
