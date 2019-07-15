@@ -40,10 +40,8 @@ class EncargadoController extends Controller {
 
         //compruebo si esta duplicado y mando el response
         $comprovacionEncargado = Encargado::where('usuario', $encargado->usuario)->first();
-        $comprovacionUsuarioEmpresa = Empresa::where('documento', $encargado->usuario)->first();
-        $comprovacionUsuarioUser = User::where('usuario', $encargado->usuario)->first();
         
-        if (!empty($comprovacionEncargado or $comprovacionUsuarioEmpresa or $comprovacionUsuarioUser)) {
+        if ($comprovacionEncargado) {
             $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
@@ -172,10 +170,8 @@ class EncargadoController extends Controller {
 
                 //compruebo si esta duplicado y mando el response
                 $comprovacionEncargado = Encargado::where('usuario', $encargadoDB->usuario)->first();
-                $comprovacionUsuarioEmpresa = Empresa::where('documento', $encargadoDB->usuario)->first();
-                $comprovacionUsuarioUser = User::where('usuario', $encargadoDB->usuario)->first();
         
-                if (!empty($comprovacionEncargado or $comprovacionUsuarioEmpresa or $comprovacionUsuarioUser)) {
+                if ($comprovacionEncargado) {
                     $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
                     $mensajeJson = Collection::make($mensaje);
                     $mensajeJson->toJson();

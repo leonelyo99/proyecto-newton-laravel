@@ -118,10 +118,8 @@ class UsersController extends Controller {
         //compruebo si esta duplicado, si lo esta mando el response
         $comprovacionUsuarioUser = User::where('usuario', $usuario->usuario)->first();
         $comprovacionEmailUser = User::where('email', $usuario->email)->first();
-        $comprovacionUsuarioEncargado = Encargado::where('usuario', $usuario->usuario)->first();
-        $comprovacionUsuarioEmpresa = Empresa::where('documento', $usuario->usuario)->first();
         
-        if (!empty($comprovacionUsuarioUser or $comprovacionUsuarioEncargado or $comprovacionUsuarioEmpresa)) {
+        if (!empty($comprovacionUsuarioUser)) {
             $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
@@ -195,11 +193,8 @@ class UsersController extends Controller {
             if ($request->input('usuario')) {
                 $usuarioDB->usuario = strtoupper(trim(strip_tags($request->input('usuario')))); //limpio los espacios, limpio xss, lo paso a mayusculas
                 
-                $comprovacionUsuario = Encargado::where('usuario', $usuarioDB->usuario)->first();
-                $comprovacionUsuarioEncargado = Encargado::where('usuario', $usuarioDB->usuario)->first();
-                $comprovacionUsuarioEmpresa = Empresa::where('documento', $usuarioDB->usuario)->first();
-        
-                if (!empty($comprovacionUsuario or $comprovacionUsuarioEncargado or $comprovacionUsuarioEmpresa)) {
+                $comprovacionUsuario = User::where('usuario', $usuarioDB->usuario)->first();
+                if ($comprovacionUsuario) {
                     $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
                     $mensajeJson = Collection::make($mensaje);
                     $mensajeJson->toJson();
@@ -213,7 +208,7 @@ class UsersController extends Controller {
                 $usuarioDB->email = trim(strip_tags($request->input('email'))); //limio de xss, limpio los espacios
 
                 $comprovacionEmail = User::where('email', $usuarioDB->email)->first();
-                if (!empty($comprovacionEmail)) {
+                if ($comprovacionEmail) {
                     $mensaje = ['mensaje' => 'Campo email se encuentra duplicado'];
                     $mensajeJson = Collection::make($mensaje);
                     $mensajeJson->toJson();
