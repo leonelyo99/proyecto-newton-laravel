@@ -19,7 +19,7 @@ class CreateTbempresasTable extends Migration
             $table->string('apellido',40);
             $table->bigInteger('documento')->unsigned()->unique();
             $table->string('nombreEmpresa');
-            $table->string('password',50);
+            $table->string('password',250);
             $table->string('img')->nullable();
             $table->string('ubicacion',50);
             $table->string('provincia',100);

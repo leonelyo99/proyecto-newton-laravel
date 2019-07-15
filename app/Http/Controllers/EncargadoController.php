@@ -16,7 +16,9 @@ use Illuminate\Support\Collection as Collection;
 //para try y catch
 Use Exception;
 //modelo de encargado
+use App\User;
 use App\Encargado;
+use App\Empresa;
 
 class EncargadoController extends Controller {
 
@@ -27,17 +29,6 @@ class EncargadoController extends Controller {
         //instancio el encargado
         $encargado = new Encargado;
 
-        //si la peticion tiene una imagen tomo el archivo lo guardo con otro nombre
-        //en el disco imagen y paso el nombre de este al encargado si no dejo la imagen null
-        if ($request->hasFile('img')) {
-            $image_path = $request->file('img');
-
-            $imagen_guardar = time() . $image_path->getClientOriginalName();
-            Storage::disk('images')->put($imagen_guardar, File::get($image_path));
-            $encargado->img = $imagen_guardar;
-        } else {
-            $encargado->img = NULL;
-        }
         //declaro estas variables en el modelo del encargado
         $encargado->empresa_id = $request->input('empresa_id');
         $encargado->nombre = strtoupper(trim(strip_tags($request->input('nombre')))); //limpio los espacios, limpio xss, lo paso a mayusculas
@@ -49,14 +40,28 @@ class EncargadoController extends Controller {
 
         //compruebo si esta duplicado y mando el response
         $comprovacionEncargado = Encargado::where('usuario', $encargado->usuario)->first();
-
-        if (!empty($comprovacionEncargado)) {
+        $comprovacionUsuarioEmpresa = Empresa::where('documento', $encargado->usuario)->first();
+        $comprovacionUsuarioUser = User::where('usuario', $encargado->usuario)->first();
+        
+        if (!empty($comprovacionEncargado or $comprovacionUsuarioEmpresa or $comprovacionUsuarioUser)) {
             $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
 
             $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
             return response($requestObj, 409);
+        }
+        
+        //si la peticion tiene una imagen tomo el archivo lo guardo con otro nombre
+        //en el disco imagen y paso el nombre de este al encargado si no dejo la imagen null
+        if ($request->hasFile('img')) {
+            $image_path = $request->file('img');
+
+            $imagen_guardar = time() . $image_path->getClientOriginalName();
+            Storage::disk('images')->put($imagen_guardar, File::get($image_path));
+            $encargado->img = $imagen_guardar;
+        } else {
+            $encargado->img = NULL;
         }
 
         //si no esta duplicado lo guardo, si pasa algo lo aviso
@@ -167,8 +172,10 @@ class EncargadoController extends Controller {
 
                 //compruebo si esta duplicado y mando el response
                 $comprovacionEncargado = Encargado::where('usuario', $encargadoDB->usuario)->first();
-
-                if (!empty($comprovacionEncargado)) {
+                $comprovacionUsuarioEmpresa = Empresa::where('documento', $encargadoDB->usuario)->first();
+                $comprovacionUsuarioUser = User::where('usuario', $encargadoDB->usuario)->first();
+        
+                if (!empty($comprovacionEncargado or $comprovacionUsuarioEmpresa or $comprovacionUsuarioUser)) {
                     $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
                     $mensajeJson = Collection::make($mensaje);
                     $mensajeJson->toJson();

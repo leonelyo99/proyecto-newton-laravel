@@ -19,7 +19,7 @@ class CreateTbencargadosTable extends Migration
             $table->string('nombre',40);
             $table->string('apellido',40);
             $table->string('usuario',40)->unique();
-            $table->string('password',50);
+            $table->string('password',250);
             $table->string('img')->nullable();
             $table->enum('role', ['usuario', 'encargado', 'empresa']);
             $table->enum('estado', ['true', 'false']);

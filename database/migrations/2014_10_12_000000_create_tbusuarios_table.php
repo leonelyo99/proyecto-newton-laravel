@@ -18,7 +18,7 @@ class CreateTbusuariosTable extends Migration
             $table->string('usuario',40)->unique();
             $table->string('email',50)->unique();
             $table->string('img')->nullable();
-            $table->string('password',50);
+            $table->string('password',250);
             $table->enum('role', ['usuario', 'encargado', 'empresa']);
             $table->enum('estado', ['true', 'false']);
             $table->timestamp('email_verified_at')->nullable();

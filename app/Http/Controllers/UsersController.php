@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 //validacion del request para crear usuario
 use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 //para crear un objeto json
 use Illuminate\Support\Collection as Collection;
 //para try y catch
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\File; //tratar con archivos
 use Illuminate\Http\Response;
 //modelo de usuario
 use App\User;
+use App\Encargado;
+use App\Empresa;
 
 class UsersController extends Controller {
 
@@ -104,6 +107,36 @@ class UsersController extends Controller {
     public function crearUsuario(CreateUserRequest $request) {
         //instancio el usuario
         $usuario = new User;
+
+        //declaro estas variables en el modelo del usuario
+        $usuario->usuario = strtoupper(trim(strip_tags($request->input('usuario')))); //limpio los espacios, limpio xss, lo paso a mayusculas
+        $usuario->email = trim(strip_tags($request->input('email'))); //limio de xss, limpio los espacios
+        $usuario->password = trim($request->input('password'));
+        $usuario->role = "usuario";
+        $usuario->estado = "true";
+
+        //compruebo si esta duplicado, si lo esta mando el response
+        $comprovacionUsuarioUser = User::where('usuario', $usuario->usuario)->first();
+        $comprovacionEmailUser = User::where('email', $usuario->email)->first();
+        $comprovacionUsuarioEncargado = Encargado::where('usuario', $usuario->usuario)->first();
+        $comprovacionUsuarioEmpresa = Empresa::where('documento', $usuario->usuario)->first();
+        
+        if (!empty($comprovacionUsuarioUser or $comprovacionUsuarioEncargado or $comprovacionUsuarioEmpresa)) {
+            $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 409);
+        }
+        if (!empty($comprovacionEmailUser)) {
+            $mensaje = ['mensaje' => 'Campo email se encuentra duplicado'];
+            $mensajeJson = Collection::make($mensaje);
+            $mensajeJson->toJson();
+
+            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+            return response($requestObj, 409);
+        }
         
         //si la peticion tiene una imagen tomo el archivo lo guardo con otro nombre
         //en el disco imagen y paso el nombre de esta al usuario si no dejo la imagen null
@@ -116,38 +149,12 @@ class UsersController extends Controller {
         } else {
             $usuario->img = NULL; //si no viene el campo mando null
         }
-        //declaro estas variables en el modelo del usuario
-        $usuario->usuario = strtoupper(trim(strip_tags($request->input('usuario')))); //limpio los espacios, limpio xss, lo paso a mayusculas
-        $usuario->email = trim(strip_tags($request->input('email'))); //limio de xss, limpio los espacios
-        $usuario->password = trim($request->input('password'));
-        $usuario->role = "usuario";
-        $usuario->estado = "true";
-
-        //compruebo si esta duplicado, si lo esta mando el response
-        $comprovacionUsuario = User::where('usuario', $usuario->usuario)->first();
-        $comprovacionEmail = User::where('email', $usuario->email)->first();
-
-        if (!empty($comprovacionUsuario)) {
-            $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 409);
-        }
-        if (!empty($comprovacionEmail)) {
-            $mensaje = ['mensaje' => 'Campo email se encuentra duplicado'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 409);
-        }
         
         //si no esta duplicado lo guardo, si pasa algo lo aviso
         try {
             $usuario->save();
         } catch (Exception $e) {
+            return $e;
             $mensaje = ['mensaje' => 'Algo sucedio'];
             $mensajeJson = Collection::make($mensaje);
             $mensajeJson->toJson();
@@ -163,7 +170,7 @@ class UsersController extends Controller {
     //=======================================
     //modificar un usuario mediante el post
     //=======================================
-    public function editar(CreateUserRequest $request) {
+    public function editar(UpdateUserRequest $request) {
 
         try {//traigo el usuario
             $usuarioDB = User::findOrFail($request->input('id'));
@@ -187,9 +194,12 @@ class UsersController extends Controller {
             //si el request trae un usuario reviso que no este duplicado en la base de datos
             if ($request->input('usuario')) {
                 $usuarioDB->usuario = strtoupper(trim(strip_tags($request->input('usuario')))); //limpio los espacios, limpio xss, lo paso a mayusculas
-
+                
                 $comprovacionUsuario = Encargado::where('usuario', $usuarioDB->usuario)->first();
-                if (!empty($comprovacionUsuario)) {
+                $comprovacionUsuarioEncargado = Encargado::where('usuario', $usuarioDB->usuario)->first();
+                $comprovacionUsuarioEmpresa = Empresa::where('documento', $usuarioDB->usuario)->first();
+        
+                if (!empty($comprovacionUsuario or $comprovacionUsuarioEncargado or $comprovacionUsuarioEmpresa)) {
                     $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
                     $mensajeJson = Collection::make($mensaje);
                     $mensajeJson->toJson();
@@ -202,9 +212,9 @@ class UsersController extends Controller {
             if ($request->input('email')) {
                 $usuarioDB->email = trim(strip_tags($request->input('email'))); //limio de xss, limpio los espacios
 
-                $comprovacionEmail = Encargado::where('email', $usuarioDB->email)->first();
+                $comprovacionEmail = User::where('email', $usuarioDB->email)->first();
                 if (!empty($comprovacionEmail)) {
-                    $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
+                    $mensaje = ['mensaje' => 'Campo email se encuentra duplicado'];
                     $mensajeJson = Collection::make($mensaje);
                     $mensajeJson->toJson();
 

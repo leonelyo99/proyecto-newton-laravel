@@ -26,7 +26,6 @@ class UpdateEmpresaRequest extends FormRequest {
         return [
         'nombre'=>'required|string',
         'apellido'=>'required|string',
-        'documento' => 'required|numeric',
         'nombreEmpresa' => 'required|string',
         'password' => 'required',
         'ubicacion' => 'required|string',
