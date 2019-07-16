@@ -18,6 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 //routas login
 Route::post('/login', 'LoginController@login');
+Route::get('/todo', 'LoginController@todo');
 
 //routas usuarios
 //mostrar

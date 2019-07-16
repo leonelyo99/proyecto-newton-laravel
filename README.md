@@ -188,7 +188,8 @@ pone lo que te devuelve en el src de la imagen
 - password -> string
 - tipo -> string -> admite empresa, usuario o encargado
 
-
+**todos - GET**
+- http://localhost/proyecto-2.0/backend/public/api/todo
 
 
 

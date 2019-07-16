@@ -42,7 +42,7 @@ class LoginController extends Controller {
                 return $this->ComproContraseña($usuarioDB, $password, $usuarioDB);
             }
         }
-        
+
         //=========================================
         //Empresa
         //=========================================
@@ -59,7 +59,7 @@ class LoginController extends Controller {
                 return $this->ComproContraseña($empresaDB, $password, $empresaDB);
             }
         }
-        
+
         //=========================================
         //Encargado
         //=========================================
@@ -79,6 +79,27 @@ class LoginController extends Controller {
             $requestObj = new Request(array('ok' => true, "respuesta" => "No encotrado"));
             return response($requestObj, 404);
         }
+    }
+
+    public function todo() {
+        
+        $usuariosDB = User::get();
+        $empresasDB = Empresa::get();
+        $encargadosDB = Encargado::get();
+
+        $todo = array();
+        foreach ($usuariosDB as $usuarioDB) { 
+            array_push($todo, $usuarioDB);
+        }
+        foreach ($empresasDB as $empresaDB) {
+            array_push($todo, $empresaDB);
+        }
+        foreach ($encargadosDB as $encargadoDB) { 
+            array_push($todo, $encargadoDB);
+        }
+
+        $requestObj = new Request(array('ok' => true, "respuesta" => $todo));
+        return response($requestObj, 200);
     }
 
     private function cifrar($role) {
@@ -112,7 +133,7 @@ class LoginController extends Controller {
 
             $cifrado = $this->cifrar('usuario');
 
-            $requestObj = new Request(array('ok' => true,"respuesta" => $respuesta, "token" => $cifrado));
+            $requestObj = new Request(array('ok' => true, "respuesta" => $respuesta, "token" => $cifrado));
             return response($requestObj, 200);
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => "La contraseña no coincide"));
