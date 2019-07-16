@@ -39,7 +39,7 @@ class User extends Authenticatable
 
     //atributos que no se muestran en una peticion
     protected $hidden = [
-        'password', 'remember_token','created_at', 'updated_at', 'email_verified_at',
+        'password', 'remember_token','created_at', 'updated_at', 'email_verified_at', 'estado'
     ];
 
     //verificacion de email

@@ -45,6 +45,6 @@ class Pedido extends Model
     
     //atributos que no se muestran en una peticion
     protected $hidden = [
-        'created_at', 'updated_at'
+        'created_at', 'updated_at', 'user_id', 'encargado_id', 'empresa_id'
     ];
 }

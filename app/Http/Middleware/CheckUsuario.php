@@ -4,8 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 
-class CheckUsuario
-{
+class CheckUsuario {
+
     /**
      * Handle an incoming request.
      *
@@ -13,8 +13,16 @@ class CheckUsuario
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
-    {
-        return $next($request);
+    public function handle($request, Closure $next) {
+        //desencriptacion de datos
+        $desencryptar = explode('LEO', $final, 2);
+
+        $decrypted = Crypt::decryptString($desencryptar[0]);
+        echo $decrypted;
+
+        if (hash_equals($desencryptar[1], hash("sha256", $cadena))) {
+            echo "¡Contraseña verificada!";
+        }
     }
+
 }

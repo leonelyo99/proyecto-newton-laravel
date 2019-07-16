@@ -38,32 +38,21 @@ class PedidoController extends Controller {
         } else if ($tipo == 'encargado') {//si el tipo es encargado creo el encargado_id con el creador_id
             $pedido->encargado_id = $request->input('creador_id');
         } else { //si no es empresa ni encargado mando un error
-            $mensaje = ['mensaje' => 'El tipo no es valido'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('El tipo no es valido', 406);
         }
-        
+
         //declaro las variables
         $pedido->user_id = $request->input('user_id');
         $pedido->nombre = trim(strip_tags($request->input('nombre')));
         $pedido->descripcion = trim(strip_tags($request->input('descripcion')));
         $pedido->progreso = $request->input('progreso');
         $pedido->precio = $request->input('precio');
-        
+
         //lo guardo
         try {
             $pedido->save();
         } catch (Exception $e) {
-            return $e;
-            $mensaje = ['mensaje' => 'Algo sucedio'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si todo sale bien mando la respuesta
         $requestObj = new Request(array('ok' => true, "respuesta" => $pedido));
@@ -78,21 +67,11 @@ class PedidoController extends Controller {
         try { //traigo el pedido
             $pedidoDB = Pedido::findOrFail($request->input('id'));
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si esta vacio aviso
         if (!$pedidoDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             //declaro las variables
             $pedidoDB->nombre = trim(strip_tags($request->input('nombre')));
@@ -103,12 +82,7 @@ class PedidoController extends Controller {
             try {
                 $pedidoDB->save();
             } catch (Exception $e) {
-                $mensaje = ['mensaje' => 'Error al guardar intentelo mas tarde'];
-                $mensajeJson = Collection::make($mensaje);
-                $mensajeJson->toJson();
-
-                $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-                return response($requestObj, 500);
+                return $this->Error('Error del servidor', 500);
             }
             //si sale bien lo aviso
             $requestObj = new Request(array('ok' => true, "respuesta" => $pedidoDB));
@@ -123,29 +97,22 @@ class PedidoController extends Controller {
         try {
             $pedidoDB = Pedido::where('id', $id)->with('imagenes')->first();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         if (!$pedidoDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
-            //borrado de imagenes vinculadas a este archivo
-            $borrar = array();
-            foreach ($pedidoDB->imagenes as $imagen) { //un foreach de todas las imagenes donde guarda el nombre en un array de imagenes
-                array_push($borrar, $imagen->imagen);
+            if ($pedidoDB->imagenes) {
+                //borrado de imagenes vinculadas a este archivo
+                $borrar = array();
+                
+                foreach ($pedidoDB->imagenes as $imagen) { //un foreach de todas las imagenes donde guarda el nombre en un array de imagenes
+                    array_push($borrar, $imagen->imagen);
+                }
+                Storage::disk('images')->delete($borrar);
+                //las borro de la base de datos
+                Imagen::where('pedido_id', $id)->delete();
             }
-            Storage::disk('images')->delete($borrar);
-            //las borro de la base de datos
-            Imagen::where('pedido_id', $id)->delete();
             //lo borro de la base de datos
             Pedido::where('id', $id)->delete();
 
@@ -164,12 +131,7 @@ class PedidoController extends Controller {
         $comprovacionPedido = Pedido::where('id', $request->input('pedido_id'))->first();
         //si no esta lo aviso
         if (!$comprovacionPedido) {
-            $mensaje = ['mensaje' => 'Id no enconcontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 409);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         }
 
         //si esta el pedido guarda la imagen
@@ -184,16 +146,24 @@ class PedidoController extends Controller {
         try {
             $imagen->save();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Algo sucedio'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si todo sale bien mando la respuesta
         $requestObj = new Request(array('ok' => true, "respuesta" => $imagen));
         return response($requestObj, 201);
+    }
+
+    //===============================================
+    //funciones
+    //===============================================
+
+    private function Error($mensajeMandar, $error) {
+        $mensaje = ['mensaje' => $mensajeMandar];
+        $mensajeJson = Collection::make($mensaje);
+        $mensajeJson->toJson();
+
+        $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+        return response($requestObj, $error);
     }
 
 }

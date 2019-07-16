@@ -46,12 +46,7 @@ class EmpresaController extends Controller {
         $comprovacionEmpresa = Empresa::where('documento', $empresa->documento)->first();
         
         if ($comprovacionEmpresa) {
-            $mensaje = ['mensaje' => 'Campo documento se encuentra duplicado'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 409);
+            return $this->Error('Campo documento duplicado', 409);
         }
         
         //si la peticion tiene una imagen tomo el archivo lo guardo con otro nombre
@@ -70,12 +65,7 @@ class EmpresaController extends Controller {
         try {
             $empresa->save();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Algo sucedio'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si todo sale bien mando la respuesta
         $requestObj = new Request(array('ok' => true, "respuesta" => $empresa));
@@ -92,22 +82,11 @@ class EmpresaController extends Controller {
 
             $empresaDB = Empresa::where('id', $id)->where('estado', 'true')->with('pedidos')->with('encargados')->first();
         } catch (Exception $e) {
-
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si da una respuesta vacia es un error del servidor sino todo ok
         if (!$empresaDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => $empresaDB));
             return response($requestObj, 200);
@@ -122,21 +101,11 @@ class EmpresaController extends Controller {
         try {// busco la empresa y corroboro que sea true
             $empresaDB = Empresa::where('id', $request->input('id'))->where('estado', 'true')->first();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Algo sucedio', 500);
         }
 
         if (!$empresaDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             //si quiere cambiar el documento corroborro que este no este en la base de datos
             if ($request->input('documento')) {
@@ -145,13 +114,8 @@ class EmpresaController extends Controller {
                 //compruebo si esta duplicado y mando el response
                 $comprovacionEmpresa = Empresa::where('documento', $empresaDB->documento)->first();
         
-            if ($comprovacionEmpresa) {
-                    $mensaje = ['mensaje' => 'Campo documento se encuentra duplicado'];
-                    $mensajeJson = Collection::make($mensaje);
-                    $mensajeJson->toJson();
-
-                    $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-                    return response($requestObj, 409);
+                if ($comprovacionEmpresa) {
+                    return $this->Error('Campo documento se encuentra duplicado', 409);
                 }
             }
 
@@ -180,12 +144,7 @@ class EmpresaController extends Controller {
             try {
                 $empresaDB->save();
             } catch (Exception $e) {
-                $mensaje = ['mensaje' => 'Error al guardar intentelo mas tarde'];
-                $mensajeJson = Collection::make($mensaje);
-                $mensajeJson->toJson();
-
-                $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-                return response($requestObj, 500);
+                return $this->Error('Error del servidor', 500);
             }
 
             $requestObj = new Request(array('ok' => true, "respuesta" => $empresaDB));
@@ -200,20 +159,10 @@ class EmpresaController extends Controller {
         try {
             $empresaDB = Empresa::where('id', $id)->where('estado', 'true')->first();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         if (!$empresaDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             $empresaDB->estado = "false";
             $empresaDB->save();
@@ -232,22 +181,11 @@ class EmpresaController extends Controller {
         try {
             $empresaDB = Empresa::where('id', $id)->where('estado', 'true')->with('encargadoSinPedido')->first();
         } catch (Exception $e) {
-
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si da una respuesta vacia es un error del servidor sino todo ok
         if (!$empresaDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => $empresaDB));
             return response($requestObj, 200);
@@ -271,26 +209,27 @@ class EmpresaController extends Controller {
                 }
             }
         } catch (Exception $e) {
-
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si da una respuesta vacia es un error del servidor sino todo ok
         if (!$empresaDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => $pedidos));
             return response($requestObj, 200);
         }
     }
 
+    //===============================================
+    //funciones
+    //===============================================
+    
+    private function Error($mensajeMandar, $error) {
+        $mensaje = ['mensaje' => $mensajeMandar];
+        $mensajeJson = Collection::make($mensaje);
+        $mensajeJson->toJson();
+
+        $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+        return response($requestObj, $error);
+    }
 }

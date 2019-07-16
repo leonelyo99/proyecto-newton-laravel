@@ -42,21 +42,11 @@ class UsersController extends Controller {
                 }
             }
         } catch (Exception $e) { //si viene no  funciona larga error
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
 
         if (!$usuariosDB) { //si esta vacio, no lo encontro
-            $mensaje = ['mensaje' => 'No se encontron usuarios'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('No se encontron usuarios', 404);
         } else { //si no esta vacio lo mando al front
             $requestObj = new Request(array('ok' => true, "respuesta" => $usuariosDB));
             return response($requestObj, 200);
@@ -79,22 +69,12 @@ class UsersController extends Controller {
                 }
             }
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         
         //si da una respuesta vacia es un error del servidor sino todo ok
         if (!$usuarioDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => $usuarioDB));
             return response($requestObj, 200);
@@ -119,21 +99,11 @@ class UsersController extends Controller {
         $comprovacionUsuarioUser = User::where('usuario', $usuario->usuario)->first();
         $comprovacionEmailUser = User::where('email', $usuario->email)->first();
         
-        if (!empty($comprovacionUsuarioUser)) {
-            $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 409);
+        if ($comprovacionUsuarioUser) {
+            return $this->error('Campo usuario duplicado', 409);
         }
-        if (!empty($comprovacionEmailUser)) {
-            $mensaje = ['mensaje' => 'Campo email se encuentra duplicado'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 409);
+        if ($comprovacionEmailUser) {
+            return $this->error('Campo email se encuentra duplicado', 409);
         }
         
         //si la peticion tiene una imagen tomo el archivo lo guardo con otro nombre
@@ -152,13 +122,7 @@ class UsersController extends Controller {
         try {
             $usuario->save();
         } catch (Exception $e) {
-            return $e;
-            $mensaje = ['mensaje' => 'Algo sucedio'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si todo sale bien mando la respuesta
         $requestObj = new Request(array('ok' => true, "respuesta" => $usuario));
@@ -173,34 +137,20 @@ class UsersController extends Controller {
         try {//traigo el usuario
             $usuarioDB = User::findOrFail($request->input('id'));
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
 
         if (!$usuarioDB) { //si no esta encontrado
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             //si el request trae un usuario reviso que no este duplicado en la base de datos
             if ($request->input('usuario')) {
                 $usuarioDB->usuario = strtoupper(trim(strip_tags($request->input('usuario')))); //limpio los espacios, limpio xss, lo paso a mayusculas
                 
                 $comprovacionUsuario = User::where('usuario', $usuarioDB->usuario)->first();
+                
                 if ($comprovacionUsuario) {
-                    $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
-                    $mensajeJson = Collection::make($mensaje);
-                    $mensajeJson->toJson();
-
-                    $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-                    return response($requestObj, 409);
+                    return $this->error('Campo usuario duplicado', 409);
                 }
             }
             //si el request trae un email reviso que no este duplicado en la base de datos
@@ -209,12 +159,7 @@ class UsersController extends Controller {
 
                 $comprovacionEmail = User::where('email', $usuarioDB->email)->first();
                 if ($comprovacionEmail) {
-                    $mensaje = ['mensaje' => 'Campo email se encuentra duplicado'];
-                    $mensajeJson = Collection::make($mensaje);
-                    $mensajeJson->toJson();
-
-                    $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-                    return response($requestObj, 409);
+                    return $this->error('Campo email duplicado', 409);
                 }
             }
             //guardo la password
@@ -236,12 +181,7 @@ class UsersController extends Controller {
             try {
                 $usuarioDB->save();
             } catch (Exception $e) {
-                $mensaje = ['mensaje' => 'Error al guardar intentelo mas tarde'];
-                $mensajeJson = Collection::make($mensaje);
-                $mensajeJson->toJson();
-
-                $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-                return response($requestObj, 500);
+                return $this->Error('Error al guardar usuario', 500);
             }
 
             $requestObj = new Request(array('ok' => true, "respuesta" => $usuarioDB));
@@ -256,20 +196,10 @@ class UsersController extends Controller {
         try {
             $usuarioDB = User::where('id', $id)->where('estado', 'true')->first();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         if (!$usuarioDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             //cambio el estado a false
             $usuarioDB->estado = "false";
@@ -278,6 +208,19 @@ class UsersController extends Controller {
             $requestObj = new Request(array('ok' => true, "respuesta" => "borrado"));
             return response($requestObj, 201);
         }
+    }
+    
+    //===============================================
+    //funciones
+    //===============================================
+    
+    private function Error($mensajeMandar, $error) {
+        $mensaje = ['mensaje' => $mensajeMandar];
+        $mensajeJson = Collection::make($mensaje);
+        $mensajeJson->toJson();
+
+        $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+        return response($requestObj, $error);
     }
 
 }

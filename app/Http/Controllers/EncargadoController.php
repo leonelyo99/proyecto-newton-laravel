@@ -42,12 +42,7 @@ class EncargadoController extends Controller {
         $comprovacionEncargado = Encargado::where('usuario', $encargado->usuario)->first();
         
         if ($comprovacionEncargado) {
-            $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 409);
+            return $this->error('Campo usuario duplicado', 409);
         }
         
         //si la peticion tiene una imagen tomo el archivo lo guardo con otro nombre
@@ -66,12 +61,7 @@ class EncargadoController extends Controller {
         try {
             $encargado->save();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Algo sucedio'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si todo sale bien mando la respuesta
         $requestObj = new Request(array('ok' => true, "respuesta" => $encargado));
@@ -87,21 +77,11 @@ class EncargadoController extends Controller {
         try {
             $encargadoDB = Encargado::where('id', $id)->where('estado', 'true')->with('empresa')->with('pedidos')->first();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         //si da una respuesta vacia no lo encontro
         if (!$encargadoDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => $encargadoDB));
             return response($requestObj, 200);
@@ -115,20 +95,10 @@ class EncargadoController extends Controller {
         try {
             $encargadoDB = Encargado::where('id', $id)->where('estado', 'true')->first();
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
         if (!$encargadoDB) {
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             $encargadoDB->estado = "false";
             $encargadoDB->save();
@@ -146,21 +116,11 @@ class EncargadoController extends Controller {
         try {
             $encargadoDB = Encargado::findOrFail($request->input('id'));
         } catch (Exception $e) {
-            $mensaje = ['mensaje' => 'Error del servidor disculpe'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 500);
+            return $this->Error('Error del servidor', 500);
         }
 
         if (!$encargadoDB) { //si el encargado esta vacio mando el response sino
-            $mensaje = ['mensaje' => 'Id no encontrado en la base de datos'];
-            $mensajeJson = Collection::make($mensaje);
-            $mensajeJson->toJson();
-
-            $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-            return response($requestObj, 404);
+            return $this->Error('Id no encontrado en la base de datos', 404);
         } else {
             
             //si la request tiene un input usuario reviso que no este duplicado
@@ -172,12 +132,7 @@ class EncargadoController extends Controller {
                 $comprovacionEncargado = Encargado::where('usuario', $encargadoDB->usuario)->first();
         
                 if ($comprovacionEncargado) {
-                    $mensaje = ['mensaje' => 'Campo usuario se encuentra duplicado'];
-                    $mensajeJson = Collection::make($mensaje);
-                    $mensajeJson->toJson();
-
-                    $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-                    return response($requestObj, 409);
+                    return $this->error('Campo usuario duplicado', 409);
                 }
             }
             
@@ -204,17 +159,24 @@ class EncargadoController extends Controller {
             try {
                 $encargadoDB->save();
             } catch (Exception $e) {
-                $mensaje = ['mensaje' => 'Error al guardar intentelo mas tarde'];
-                $mensajeJson = Collection::make($mensaje);
-                $mensajeJson->toJson();
-
-                $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-                return response($requestObj, 500);
+                return $this->Error('Error del servidor', 500);
             }
 
             $requestObj = new Request(array('ok' => true, "respuesta" => $encargadoDB));
             return response($requestObj, 201);
         }
+    }
+    //===============================================
+    //funciones
+    //===============================================
+    
+    private function Error($mensajeMandar, $error) {
+        $mensaje = ['mensaje' => $mensajeMandar];
+        $mensajeJson = Collection::make($mensaje);
+        $mensajeJson->toJson();
+
+        $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+        return response($requestObj, $error);
     }
 
 }
