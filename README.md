@@ -28,7 +28,7 @@ En el archivo **.env**
 **Crear un usuario - POST**
 - http://localhost/proyecto-2.0/backend/public/api/usuario/crear
 
-- campos
+*campos*
 - usuario -> string ->unico
 - email -> string
 - img -> archivo
@@ -40,7 +40,7 @@ En el archivo **.env**
 **aclaracion**
 - Si no queres actualizar usuario o el email no lo mandes porque choca la validacion
 
-- campos
+*campos*
 - id -> number
 - usuario -> string
 - email -> string
@@ -66,7 +66,7 @@ pone lo que te devuelve en el src de la imagen
 **Crear una empresa - POST**
 - http://localhost/proyecto-2.0/backend/public/api/empresa/crear
 
-- campos
+*campos*
 - nombre -> string
 - apellido -> string
 - documento -> number ->unico
@@ -86,7 +86,7 @@ pone lo que te devuelve en el src de la imagen
 **aclaracion**
 - Si no queres actualizar documento no lo mandes porque choca la validacion
 
-- campos
+*campos*
 - id -> number
 - nombre -> string
 - apellido -> string
@@ -112,10 +112,10 @@ pone lo que te devuelve en el src de la imagen
 
 ### Encargado
 
-** Crear un encargado - POST **
+** Crear un encargado - POST**
 - http://localhost/proyecto-2.0/backend/public/api/encargado/crear
 
-- campos
+*campos*
 - empresa_id -> number
 - nombre -> sring
 - apellido -> sring
@@ -123,19 +123,19 @@ pone lo que te devuelve en el src de la imagen
 - password -> sring
 - img -> archivo
 
-** Obtener un encargado - GET **
+** Obtener un encargado - GET**
 - http://localhost/proyecto-2.0/backend/public/api/encargado/1
 
-** Borrar un encargado - GET **
+** Borrar un encargado - GET**
 - http://localhost/proyecto-2.0/backend/public/api/encargado/borrar/4
 
-** Editar un encargado - POST **
+** Editar un encargado - POST**
 - http://localhost/proyecto-2.0/backend/public/api/encargado/editar
 
 **aclaracion**
 - Si no queres actualizar un usuario no lo mandes porque choca la validacion
 
-- campos
+*campos*
 - id -> number
 - nombre -> sring
 - apellido -> sring
@@ -147,7 +147,7 @@ pone lo que te devuelve en el src de la imagen
 **crear un pedido - POST**
 - http://localhost/proyecto-2.0/backend/public/api/pedido/crear
 
-- campos
+*campos*
 - tipo -> encargado, empresa
 - creador_id -> number
 - nombre -> string
@@ -159,7 +159,7 @@ pone lo que te devuelve en el src de la imagen
 **Editar un pedido - POST**
 - http://localhost/proyecto-2.0/backend/public/api/pedido/crear
 
-- campos
+*campos*
 - id -> number
 - nombre -> string
 - descripcion -> string
@@ -169,7 +169,7 @@ pone lo que te devuelve en el src de la imagen
 **Agregar imagen - POST**
 - http://localhost/proyecto-2.0/backend/public/api/pedido/imagen
 
-- campos
+*campos*
 - pedido_id -> number
 - imagen -> archivo
 
@@ -181,7 +181,7 @@ pone lo que te devuelve en el src de la imagen
 **login - POST**
 - http://localhost/proyecto-2.0/backend/public/api/login
 
-- campos
+*campos*
 - usuario -> string
 - password -> string
 - tipo -> string -> admite empresa, usuario o encargado
