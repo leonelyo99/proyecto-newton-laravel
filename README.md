@@ -1,6 +1,8 @@
 # Proyecto
 
-La base de datos es **proyecto**
+- La base de datos es **proyecto**
+- Desde la carpeta que contiene este archivo ejecuta **php artisan migrate**
+- Me tenes que decir en que sifras la pasword y para logear tambien tenes que mandar la password cifrada creo que es con bcript
 
 ## Configuracion
 
