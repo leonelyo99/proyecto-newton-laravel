@@ -114,7 +114,7 @@ pone lo que te devuelve en el src de la imagen
 
 ### Encargado
 
-** Crear un encargado - POST**
+**Crear un encargado - POST**
 - http://localhost/proyecto-2.0/backend/public/api/encargado/crear
 
 *campos*
@@ -125,13 +125,13 @@ pone lo que te devuelve en el src de la imagen
 - password -> sring
 - img -> archivo
 
-** Obtener un encargado - GET**
+**Obtener un encargado - GET**
 - http://localhost/proyecto-2.0/backend/public/api/encargado/1
 
-** Borrar un encargado - GET**
+**Borrar un encargado - GET**
 - http://localhost/proyecto-2.0/backend/public/api/encargado/borrar/4
 
-** Editar un encargado - POST**
+**Editar un encargado - POST**
 - http://localhost/proyecto-2.0/backend/public/api/encargado/editar
 
 **aclaracion**
