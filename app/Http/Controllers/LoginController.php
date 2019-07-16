@@ -39,7 +39,7 @@ class LoginController extends Controller {
             if (!$usuarioDB) {
                 return $this->Error('Mail o Usuario no encontrado', 404);
             } else {
-                return $this->ComproContraseña($usuarioDB, $password);
+                return $this->ComproContraseña($usuarioDB, $password, $usuarioDB);
             }
         }
         
@@ -56,7 +56,7 @@ class LoginController extends Controller {
             if (!$empresaDB) {
                 return $this->Error('Documento no encontrado', 404);
             } else {
-                return $this->ComproContraseña($empresaDB, $password);
+                return $this->ComproContraseña($empresaDB, $password, $empresaDB);
             }
         }
         
@@ -73,7 +73,7 @@ class LoginController extends Controller {
             if (!$encargadoDB) {
                 return $this->Error('Encargado no encontrado', 404);
             } else {
-                return $this->ComproContraseña($encargadoDB, $password);
+                return $this->ComproContraseña($encargadoDB, $password, $encargadoDB);
             }
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => "No encotrado"));
@@ -103,7 +103,7 @@ class LoginController extends Controller {
         return response($requestObj, $error);
     }
 
-    private function ComproContraseña($usuarioDB, $password) {
+    private function ComproContraseña($usuarioDB, $password, $respuesta) {
         if (hash_equals($usuarioDB->password, hash("sha256", $password))) {
             if ($usuarioDB->estado === 'false') {
                 $usuarioDB->estado = 'true';
@@ -112,7 +112,7 @@ class LoginController extends Controller {
 
             $cifrado = $this->cifrar('usuario');
 
-            $requestObj = new Request(array('ok' => true, "respuesta" => $cifrado));
+            $requestObj = new Request(array('ok' => true,"respuesta" => $respuesta, "token" => $cifrado));
             return response($requestObj, 200);
         } else {
             $requestObj = new Request(array('ok' => true, "respuesta" => "La contraseña no coincide"));
