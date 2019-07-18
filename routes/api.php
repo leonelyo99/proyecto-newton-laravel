@@ -22,48 +22,48 @@ Route::get('/todo', 'LoginController@todo');
 
 //routas usuarios
 //mostrar
-Route::get('/usuarios', 'UsersController@usuarios'); //mostrar todos los usuarios con sus pedidos
-Route::get('/usuario/{id}', 'UsersController@usuario'); //mostrar un usuario mediante el id con sus pedidos
+Route::get('/usuarios', 'UsersController@usuarios')->middleware('Check:usuario'); //mostrar todos los usuarios con sus pedidos
+Route::get('/usuario/{id}', 'UsersController@usuario')->middleware('Check:usuario'); //mostrar un usuario mediante el id con sus pedidos
 //Crear
 Route::post('/usuario/crear', 'UsersController@crearUsuario'); //agrega un usuario nuevo
 //editar
-Route::post('/usuario/editar', 'UsersController@editar'); //editar un usuario
+Route::post('/usuario/editar', 'UsersController@editar')->middleware('Check:usuario'); //editar un usuario
 //borrar
-Route::get('/usuario/borrar/{id}', 'UsersController@borrar'); //editar un usuario
+Route::get('/usuario/borrar/{id}', 'UsersController@borrar')->middleware('Check:usuario'); //editar un usuario
 
 //rutas encargado
 //Crear
-Route::post('/encargado/crear', 'EncargadoController@crearEncargado'); //agrega un encargado nuevo
+Route::post('/encargado/crear', 'EncargadoController@crearEncargado')->middleware('Check:empresa'); //agrega un encargado nuevo
 //mostrar
-Route::get('/encargado/{id}', 'EncargadoController@encargado'); //mostrar un encargado con empresa, pedidos, usuarios vinculados a este
+Route::get('/encargado/{id}', 'EncargadoController@encargado')->middleware('Check:empresa1encargado'); //mostrar un encargado con empresa, pedidos, usuarios vinculados a este
 //borrar
-Route::get('/encargado/borrar/{id}', 'EncargadoController@borrar'); //editar un encargado
+Route::get('/encargado/borrar/{id}', 'EncargadoController@borrar')->middleware('Check:empresa1encargado'); //editar un encargado
 //editar
-Route::post('/encargado/editar', 'EncargadoController@editar'); //editar un encargado
+Route::post('/encargado/editar', 'EncargadoController@editar')->middleware('Check:empresa1encargado'); //editar un encargado
 
 //rutaas empresa
 //Crear
 Route::post('/empresa/crear', 'EmpresaController@crearEmpresa'); //agrega un encargado nuevo
 //mostrar empresa
-Route::get('/empresa/{id}', 'EmpresaController@empresa'); //mostrar una empresa con encargados, pedidos, usuarios vinculados a este
+Route::get('/empresa/{id}', 'EmpresaController@empresa')->middleware('Check:empresa'); //mostrar una empresa con encargados, pedidos, usuarios vinculados a este
 //editar
-Route::post('/empresa/editar', 'EmpresaController@editar'); //editar una empresa
+Route::post('/empresa/editar', 'EmpresaController@editar')->middleware('Check:empresa'); //editar una empresa
 //borrar
-Route::get('/empresa/borrar/{id}', 'EmpresaController@borrar'); //borrar una empresa
+Route::get('/empresa/borrar/{id}', 'EmpresaController@borrar')->middleware('Check:empresa'); //borrar una empresa
 //encargados
-Route::get('/empresa/encargados/{id}', 'EmpresaController@encargados'); //muestra todos los encargados de una empresa
+Route::get('/empresa/encargados/{id}', 'EmpresaController@encargados')->middleware('Check:empresa'); //muestra todos los encargados de una empresa
 //historial
-Route::get('/empresa/historial/{id}', 'EmpresaController@historial'); //muestra todos los pedidos
+Route::get('/empresa/historial/{id}', 'EmpresaController@historial')->middleware('Check:empresa'); //muestra todos los pedidos
 
 //rutas de pedidos
 //crear
-Route::post('/pedido/crear', 'PedidoController@crearPedido'); //agrega un pedido nuevo
+Route::post('/pedido/crear', 'PedidoController@crearPedido')->middleware('Check:empresa1encargado'); //agrega un pedido nuevo
 //editar
-Route::post('/pedido/editar', 'PedidoController@editar'); //editar una empresa
+Route::post('/pedido/editar', 'PedidoController@editar')->middleware('Check:empresa1encargado'); //editar una empresa
 //borrar
-Route::get('/pedido/borrar/{id}', 'PedidoController@borrar'); //borrar una empresa
+Route::get('/pedido/borrar/{id}', 'PedidoController@borrar')->middleware('Check:empresa1encargado1usuario'); //borrar una empresa
 //agregar imagen
-Route::post('/pedido/imagen', 'PedidoController@imagen'); //editar una empresa
+Route::post('/pedido/imagen', 'PedidoController@imagen')->middleware('Check:empresa1encargado'); //editar una empresa
 
 //ruta para traer imagenes
 //imagen
@@ -71,7 +71,4 @@ Route::get('/imagen/{name}', 'ImagenController@verImgen'); //manda la imagen con
 
 //helpers para no sacar vistas
 Route::get('/error', 'HelperController@error'); //mensaje de error al validar request
-
-
-
 

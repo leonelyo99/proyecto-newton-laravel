@@ -3,13 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/wamp64/www/proyecto-2.0/backend/app/Http/Controllers/UsersController.php</file>
-            <file>file:/C:/wamp64/www/proyecto-2.0/backend/app/Http/Controllers/EmpresaController.php</file>
-            <file>file:/C:/wamp64/www/proyecto-2.0/backend/composer.json</file>
-            <file>file:/C:/wamp64/www/proyecto-2.0/backend/app/Http/Controllers/EncargadoController.php</file>
-            <file>file:/C:/wamp64/www/proyecto-2.0/backend/app/Http/Controllers/PedidoController.php</file>
+            <file>file:/C:/wamp64/www/proyecto-2.0/backend/app/Http/Kernel.php</file>
+            <file>file:/C:/wamp64/www/proyecto-2.0/backend/app/Http/Middleware/CheckUsuario.php</file>
+            <file>file:/C:/wamp64/www/proyecto-2.0/backend/routes/api.php</file>
             <file>file:/C:/wamp64/www/proyecto-2.0/backend/app/Http/Controllers/LoginController.php</file>
-            <file>file:/C:/wamp64/www/proyecto-2.0/backend/README.md</file>
         </group>
     </open-files>
 </project-private>

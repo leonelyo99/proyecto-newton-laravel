@@ -22,4 +22,14 @@ class HelperController extends Controller
         $requestObj = new Request(array('ok' =>false,"error"=>$mensajeJson));
         return response($requestObj, 404);
     }
+    
+    public function errorMidleware($error)
+    {   
+        $mensaje = ['mensaje' => $error];
+        $mensajeJson = Collection::make($mensaje);
+        $mensajeJson->toJson();
+            
+        $requestObj = new Request(array('ok' =>false,"error"=>$mensajeJson));
+        return response($requestObj, 403);
+    }
 }

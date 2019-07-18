@@ -19,8 +19,11 @@ class LoginController extends Controller {
 //    Agencia de Seguridad Nacional de los EE. UU. (NSA) y publicado en 2001 por el 
 //    NIST como un Estándar Federal de Procesamiento de la Información (FIPS) de los EE. UU. 
 
+//    public function __constructor(){
+//        $this->middleware('CheckUsuario', ['except' => ['todo']]);    
+//    }
+    
     public function login(LoginRequest $request) {
-
 
         $tipo = trim($request->input('tipo'));
         $usuario = trim($request->input('usuario'));
@@ -102,6 +105,16 @@ class LoginController extends Controller {
         return response($requestObj, 200);
     }
 
+
+    private function Error($mensajeMandar, $error) {
+        $mensaje = ['mensaje' => $mensajeMandar];
+        $mensajeJson = Collection::make($mensaje);
+        $mensajeJson->toJson();
+
+        $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
+        return response($requestObj, $error);
+    }
+
     private function cifrar($role) {
         //fecha
         $fecha = localtime();
@@ -114,16 +127,7 @@ class LoginController extends Controller {
 
         return $final;
     }
-
-    private function Error($mensajeMandar, $error) {
-        $mensaje = ['mensaje' => $mensajeMandar];
-        $mensajeJson = Collection::make($mensaje);
-        $mensajeJson->toJson();
-
-        $requestObj = new Request(array('ok' => false, "error" => $mensajeJson));
-        return response($requestObj, $error);
-    }
-
+    
     private function ComproContraseña($usuarioDB, $password, $respuesta) {
         if (hash_equals($usuarioDB->password, hash("sha256", $password))) {
             if ($usuarioDB->estado === 'false') {
