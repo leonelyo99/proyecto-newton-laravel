@@ -72,3 +72,6 @@ Route::get('/imagen/{name}', 'ImagenController@verImgen'); //manda la imagen con
 //helpers para no sacar vistas
 Route::get('/error', 'HelperController@error'); //mensaje de error al validar request
 
+//restablecer contraseña
+Route::post('/restablecerMail','ResConController@codigo');
+Route::post('/restablecerCon','ResConController@ResConra');

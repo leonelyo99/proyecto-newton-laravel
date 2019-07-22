@@ -237,6 +237,36 @@ solo empresas y encargados
 **todos - GET**
 - http://localhost/proyecto-2.0/backend/public/api/todo
 
+### Restablecer Password
+
+**password, manda mail - POST**
+- http://localhost/proyecto-2.0/backend/public/api/login
+
+*campos*
+- email -> string -> email de contacto
+- usuario -> string -> esto acepta el: campo email o usuario en usuario, campo usuario en encargado y campo documento en empresa
+- tipo -> string -> admite empresa, usuario o encargado
+
+**password, restablecer contraseña - POST**
+- http://localhost/proyecto-2.0/backend/public/api/login
+
+*campos*
+- usuario -> string -> esto acepta el: campo email o usuario en usuario, campo usuario en encargado y campo documento en empresa
+- codigo -> string
+- contraseña-> string -> ya cifrado anteriormente
+- tipo -> string -> admite empresa, usuario o encargado
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
