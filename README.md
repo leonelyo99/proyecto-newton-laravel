@@ -146,7 +146,7 @@ solo empresas
 - empresa_id -> number
 - nombre -> sring
 - apellido -> sring
-- usuario -> sring
+- usuario -> sring, unico
 - password -> sring
 - img -> archivo
 
@@ -196,7 +196,7 @@ solo empresas y encargados
 - user_id -> number
 
 **Editar un pedido - POST**
-- http://localhost/proyecto-2.0/backend/public/api/pedido/crear
+- http://localhost/proyecto-2.0/backend/public/api/pedido/editar
 
 *middleware*
 solo empresas y encargados
