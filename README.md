@@ -240,7 +240,7 @@ solo empresas y encargados
 ### Restablecer Password
 
 **password, manda mail - POST**
-- http://localhost/proyecto-2.0/backend/public/api/login
+- http://localhost/proyecto-2.0/backend/public/api/restablecerMail
 
 *campos*
 - email -> string -> email de contacto
@@ -248,7 +248,7 @@ solo empresas y encargados
 - tipo -> string -> admite empresa, usuario o encargado
 
 **password, restablecer contraseña - POST**
-- http://localhost/proyecto-2.0/backend/public/api/login
+- http://localhost/proyecto-2.0/backend/public/api/restablecerCon
 
 *campos*
 - usuario -> string -> esto acepta el: campo email o usuario en usuario, campo usuario en encargado y campo documento en empresa
