@@ -43,6 +43,7 @@ class Check {
     public function tipo($roles, $desencryptar){
         $termino = false;
         foreach ($roles as $role) {
+            $resultado = hash_equals($desencryptar, hash("sha256", $role));
             if (hash_equals($desencryptar, hash("sha256", $role))) {
                 $termino = true;
             }

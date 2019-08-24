@@ -134,13 +134,13 @@ class LoginController extends Controller {
                 $usuarioDB->estado = 'true';
                 $usuarioDB->save();
             }
-
-            $cifrado = $this->cifrar('usuario');
+            
+            $cifrado = $this->cifrar($usuarioDB->role);
 
             $requestObj = new Request(array('ok' => true, "respuesta" => $respuesta, "token" => $cifrado));
             return response($requestObj, 200);
         } else {
-            $requestObj = new Request(array('ok' => true, "respuesta" => "La contraseña no coincide"));
+            $requestObj = new Request(array('ok' => false, "respuesta" => "La contraseña no coincide"));
             return response($requestObj, 403);
         }
     }
