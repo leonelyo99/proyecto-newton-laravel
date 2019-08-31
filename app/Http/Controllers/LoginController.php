@@ -129,7 +129,7 @@ class LoginController extends Controller {
     }
     
     private function ComproContraseña($usuarioDB, $password, $respuesta) {
-        if (hash_equals($usuarioDB->password, hash("sha256", $password))) {
+        if (hash_equals($usuarioDB->password, $password)) {
             if ($usuarioDB->estado === 'false') {
                 $usuarioDB->estado = 'true';
                 $usuarioDB->save();
