@@ -30,7 +30,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'usuario'=>'string',
             'email' => 'email',
-            'img' => 'nullable|image',
+            'img' => 'image',
             'password'=>'required'
         ];
     }

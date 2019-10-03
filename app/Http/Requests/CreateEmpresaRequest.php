@@ -32,7 +32,7 @@ class CreateEmpresaRequest extends FormRequest {
         'ubicacion' => 'required|string',
         'provincia' => 'required|string',
         'pais' => 'required|string',
-        'img' => 'nullable|image',
+        'img' => 'image',
         ];
     }
 

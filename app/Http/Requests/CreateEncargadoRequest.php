@@ -28,7 +28,7 @@ class CreateEncargadoRequest extends FormRequest {
             'nombre' => 'required|string',
             'apellido' => 'required|string',
             'usuario' => 'required|string',
-            'img' => 'nullable|image',
+            'img' => 'image',
             'password' => 'required'
         ];
     }

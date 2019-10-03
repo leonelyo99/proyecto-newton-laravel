@@ -30,6 +30,7 @@ class CreateUserRequest extends FormRequest
         return [
             'usuario'=>'required|string',
             'email' => 'email|required',
+            'img' => 'image',
             'password'=>'required'
         ];
     }

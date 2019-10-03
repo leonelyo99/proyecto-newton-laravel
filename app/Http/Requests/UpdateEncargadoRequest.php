@@ -27,7 +27,7 @@ class UpdateEncargadoRequest extends FormRequest {
             'nombre' => 'required|string',
             'apellido' => 'required|string',
             'usuario' => 'string',
-            'img' => 'nullable|image',
+            'img' => 'image',
             'password' => 'required'
         ];
     }
