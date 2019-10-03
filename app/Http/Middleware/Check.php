@@ -19,7 +19,7 @@ class Check {
     public function handle(Request $request, Closure $next, $arrayRoles) { 
         
         $roles = explode('1', $arrayRoles, 2); //tipos aceptados
-        if(header('token')){
+        if($request->header('token')){
             $token = $request->header('token'); //token
         }else{
             return $reject = (new HelperController)->errorMidleware('No estas autorizado');
