@@ -40,6 +40,6 @@ class Encargado extends Model
     
     //atributos que no se muestran en una peticion
     protected $hidden = [
-        'password','created_at', 'updated_at', 'estado', 'empresa_id'
+        'password','created_at', 'updated_at', 'empresa_id'
     ];
 }
